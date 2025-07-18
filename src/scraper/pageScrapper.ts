@@ -1,15 +1,13 @@
 import axios from "axios";
 import { ENV_VARS } from "../config/envVars";
 import { embedAndStoreContent, getVectorStore } from "../utils/vectorStore";
+import { extractLinkedInId } from "../utils/idExtractor";
 
 export async function scrapePage(scrapUrl: string) {
-
     const vectorStore=await getVectorStore();
     const api_key=ENV_VARS.SCRAPING_DOG_API_KEY;
     const url='https://api.scrapingdog.com/linkedin';
-
-    const content=extractLinkedInId(scrapUrl);
-
+    const content=await extractLinkedInId(scrapUrl);
     const params={
         api_key: api_key,
         type: content.type,
@@ -23,17 +21,15 @@ export async function scrapePage(scrapUrl: string) {
         if(response.status===200)
         {
             const data=response.data;
-            console.log(data);
             let formatedContent:string;
             if(content.type==="profile")
             {
-                formatedContent=formatProfile(data);
+                formatedContent=await formatProfile(data);
             }
             else
             {
-                formatedContent=formatCompany(data);
+                formatedContent=await formatCompany(data);
             }
-
             
             embedAndStoreContent(formatedContent,scrapUrl,vectorStore)
         }
@@ -50,7 +46,7 @@ export async function scrapePage(scrapUrl: string) {
 
 }
 
-function formatProfile(profile: any): string {
+async function formatProfile(profile: any): Promise<string> {
     return `
         Name: ${profile.fullName}
         Headline: ${profile.headline}
@@ -72,7 +68,7 @@ function formatProfile(profile: any): string {
     `.trim();
 }
 
-function formatCompany(company: any): string {
+async function formatCompany(company: any): Promise<string> {
     return `
         Company Name: ${company.company_name}
         Tagline: ${company.tagline || "N/A"}

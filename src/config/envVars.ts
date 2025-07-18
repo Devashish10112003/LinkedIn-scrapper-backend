@@ -13,4 +13,6 @@ function getEnvVariable(name: string): string {
 export const ENV_VARS={
     PORT:process.env.PORT||5000,
     SCRAPING_DOG_API_KEY:getEnvVariable("SCRAPING_DOG_API_KEY"),
+    QDRANT_URL:getEnvVariable("QDRANT_URL"),
+    HUGGINGFACEHUB_ACCESS_TOKEN:getEnvVariable("HUGGINGFACEHUB_ACCESS_TOKEN"),
 }

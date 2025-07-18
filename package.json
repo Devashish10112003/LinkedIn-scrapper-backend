@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@huggingface/inference": "^4.5.3",
     "@langchain/community": "^0.3.49",
     "@langchain/qdrant": "^0.1.2",
     "@qdrant/js-client-rest": "^1.14.1",

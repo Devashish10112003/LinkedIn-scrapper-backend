@@ -40,7 +40,6 @@ export async function scrapeSearchResults(job:string,place:string) {
         if(response.status===200)
         {
             const data=response.data;
-            console.log(data);
             const formatedContent=formatJobListings(data);
             embedAndStoreContent(formatedContent,job +"in "+place,vectorStore);
         }

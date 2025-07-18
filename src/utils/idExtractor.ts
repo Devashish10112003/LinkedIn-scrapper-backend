@@ -1,4 +1,5 @@
-function extractLinkedInId(url:string) {
+export async function extractLinkedInId(url:string) {
+
   try {
     const parsedUrl = new URL(url);
     const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
