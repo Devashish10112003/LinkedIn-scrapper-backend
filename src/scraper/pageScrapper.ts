@@ -1,8 +1,10 @@
 import axios from "axios";
 import { ENV_VARS } from "../config/envVars";
+import { embedAndStoreContent, getVectorStore } from "../utils/vectorStore";
 
 export async function scrapePage(scrapUrl: string) {
 
+    const vectorStore=await getVectorStore();
     const api_key=ENV_VARS.SCRAPING_DOG_API_KEY;
     const url='https://api.scrapingdog.com/linkedin';
 
@@ -22,6 +24,18 @@ export async function scrapePage(scrapUrl: string) {
         {
             const data=response.data;
             console.log(data);
+            let formatedContent:string;
+            if(content.type==="profile")
+            {
+                formatedContent=formatProfile(data);
+            }
+            else
+            {
+                formatedContent=formatCompany(data);
+            }
+
+            
+            embedAndStoreContent(formatedContent,scrapUrl,vectorStore)
         }
         else
         {
@@ -34,4 +48,57 @@ export async function scrapePage(scrapUrl: string) {
     }
     
 
+}
+
+function formatProfile(profile: any): string {
+    return `
+        Name: ${profile.fullName}
+        Headline: ${profile.headline}
+        Location: ${profile.location}
+        About: ${profile.about || "N/A"}
+
+        Experience:
+        ${profile.experience?.map((exp: any) =>
+            `- ${exp.position} at ${exp.company_name} (${exp.duration})`
+        ).join("\n") || "N/A"}
+
+        Education:
+        ${profile.education?.map((edu: any) =>
+            `- ${edu.college_name} (${edu.college_duration})`
+        ).join("\n") || "N/A"}
+
+        Activities:
+        ${profile.activities?.map((a: any) => `- ${a.title}`).join("\n") || "N/A"}
+    `.trim();
+}
+
+function formatCompany(company: any): string {
+    return `
+        Company Name: ${company.company_name}
+        Tagline: ${company.tagline || "N/A"}
+        Industry: ${company.industry || "N/A"}
+        Location: ${company.location || "N/A"}
+        Company Size: ${company.company_size || "N/A"}
+        Website: ${company.website || "N/A"}
+        Type: ${company.type || "N/A"}
+        Headquarters: ${company.headquarters || "N/A"}
+        Founded: ${company.founded || "N/A"}
+        Followers: ${company.follower_count || "N/A"}
+        About: ${company.about || "N/A"}
+
+        Employees:
+        ${company.employees?.map((emp: any) =>
+        `- ${emp.employee_name}${emp.employee_position ? ` | ${emp.employee_position}` : ""} (${emp.employee_profile_url})`
+        ).join("\n") || "N/A"}
+
+        Similar Companies:
+        ${company.similar_companies?.map((sim: any) =>
+        `- ${sim.name} | ${sim.summary} | ${sim.location}`
+        ).join("\n") || "N/A"}
+
+        Location(s):
+        ${company.locations?.map((loc: any) =>
+        `- ${loc.office_address_line_1}`
+        ).join("\n") || "N/A"}
+    `.trim();
 }
