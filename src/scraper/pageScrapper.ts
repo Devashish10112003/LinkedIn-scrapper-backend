@@ -47,6 +47,7 @@ export async function scrapePage(scrapUrl: string) {
 }
 
 async function formatProfile(profile: any): Promise<string> {
+    profile=profile[0];
     return `
         Name: ${profile.fullName}
         Headline: ${profile.headline}
@@ -69,6 +70,7 @@ async function formatProfile(profile: any): Promise<string> {
 }
 
 async function formatCompany(company: any): Promise<string> {
+    company=company[0];
     return `
         Company Name: ${company.company_name}
         Tagline: ${company.tagline || "N/A"}
